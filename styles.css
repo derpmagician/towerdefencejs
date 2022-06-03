@@ -1,0 +1,83 @@
+* {
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+}
+
+body {
+  background: black;
+  color: #ffc400;
+  display: -ms-grid;
+  display: grid;
+  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+}
+
+#canvas {
+  border-radius: 10px;
+}
+
+#score {
+  position: absolute;
+  margin: 10px 15px;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
+}
+
+.modal_container {
+  position: absolute;
+  inset: 0;
+  display: -ms-grid;
+  display: grid;
+  place-items: center;
+}
+
+.modal_elements {
+  background: white;
+  color: black;
+  padding: 10px 20px;
+  border-radius: 5px;
+}
+
+.modal_title {
+  text-align: center;
+  font-size: 25px;
+  letter-spacing: 5px;
+  margin-bottom: 10px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.modal_score {
+  text-align: center;
+  font-size: 42px;
+  margin: 5px 0;
+}
+
+.modal_desc {
+  margin-top: 0;
+  color: gray;
+  text-align: center;
+  font-size: 14px;
+}
+
+.modal_button {
+  background: #407b7d;
+  color: white;
+  font-size: 20px;
+  padding: 10px 100px;
+  margin: 10px;
+  border-radius: 5px;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.modal_button:hover {
+  background: #2f595b;
+}
+
+.modal_button:active {
+  background: #1d3839;
+}
+/*# sourceMappingURL=styles.css.map */

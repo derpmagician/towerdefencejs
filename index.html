@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="./styles.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.10.4/gsap.min.js" defer></script>
+  <script src="./script.js" defer ></script>
+  <title>Shoot Game</title>
+</head>
+<body>
+  <div id="score">
+    <span>Score:</span><span>0</span>
+  </div>
+  <div id="modal" class="modal_container">
+    <div class="modal_elements">
+      <h1 class="modal_title">Tower Defence</h1>
+      <h2 id="bigScoreEl" class="modal_score">0</h2>
+      <p class="modal_desc">Points</p>
+      <button id="modalBtn" class="modal_button">Start Game</button>
+    </div>
+  </div>
+  <canvas id="canvas"></canvas>
+  
+</body>
+</html>
