@@ -5,8 +5,10 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="./styles.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.10.4/gsap.min.js" defer></script>
-  <script src="./script.js" defer ></script>
+  <script src="./audio.js" defer></script>
+  <script src="./script.js" defer></script>
   <title>Tower Defence Game</title>
 </head>
 <body>
@@ -21,21 +23,31 @@
       <span>Level: </span><span>1</span>
     </div>
   </div>
+
+  <div class="game-controls">
+    <button id="pauseBtn" class="control-button" title="Pausar (ESC)">
+      <i class="fas fa-pause"></i>
+    </button>
+    <button id="soundToggle" class="control-button" title="Sonido (M)">
+      <i class="fas fa-volume-up"></i>
+    </button>
+  </div>
   
   <div id="modal" class="modal_container">
     <div class="modal_elements">
       <h1 class="modal_title">Tower Defence</h1>
       <h2 id="bigScoreEl" class="modal_score">0</h2>
-      <p class="modal_desc">Points</p>
+      <p class="modal_desc">Puntos</p>
       <div class="modal_controls">
-        <p>How to Play:</p>
+        <p>Controles:</p>
         <ul>
-          <li>Click to shoot at enemies</li>
-          <li>Survive as long as possible</li>
-          <li>Score points for each hit</li>
+          <li>Click: Disparar a los enemigos</li>
+          <li>ESC: Pausar/Reanudar juego</li>
+          <li>M: Activar/Desactivar sonido</li>
+          <li>P: Pausar/Reanudar juego</li>
         </ul>
       </div>
-      <button id="modalBtn" class="modal_button">Start Game</button>
+      <button id="modalBtn" class="modal_button">Comenzar Juego</button>
     </div>
   </div>
   
@@ -45,8 +57,16 @@
     <div class="modal_elements">
       <h1 class="modal_title">Game Over</h1>
       <h2 id="finalScoreEl" class="modal_score">0</h2>
-      <p class="modal_desc">Final Score</p>
-      <button id="restartBtn" class="modal_button">Play Again</button>
+      <p class="modal_desc">Puntuación Final</p>
+      <button id="restartBtn" class="modal_button">Jugar de Nuevo</button>
+    </div>
+  </div>
+
+  <div id="pause-menu" class="modal_container" style="display: none;">
+    <div class="modal_elements">
+      <h1 class="modal_title">Pausa</h1>
+      <button id="resumeBtn" class="modal_button">Continuar</button>
+      <button id="restartFromPauseBtn" class="modal_button">Reiniciar</button>
     </div>
   </div>
 </body>

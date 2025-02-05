@@ -31,11 +31,51 @@ body {
   user-select: none;
 }
 
+.game-controls {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  gap: 10px;
+  z-index: 100;
+}
+
 #score, #high-score, #level {
   background: rgba(0, 0, 0, 0.6);
   padding: 8px 15px;
   border-radius: 10px;
   border: 2px solid #ffc400;
+}
+
+.control-button {
+  background: rgba(0, 0, 0, 0.6);
+  border: 2px solid #ffc400;
+  color: #ffc400;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.control-button:hover {
+  background: rgba(255, 196, 0, 0.2);
+  transform: scale(1.1);
+}
+
+.control-button:active {
+  transform: scale(0.95);
+}
+
+.control-button i {
+  font-size: 1.2em;
+}
+
+.control-button.muted i:before {
+  content: "\f6a9";
 }
 
 .modal_container {

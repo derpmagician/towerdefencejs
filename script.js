@@ -9,6 +9,11 @@ const finalScoreEl = document.getElementById('finalScoreEl');
 const restartBtn = document.getElementById('restartBtn');
 const highScoreEl = document.querySelector('#high-score span:last-child');
 const levelEl = document.querySelector('#level span:last-child');
+const pauseBtn = document.getElementById('pauseBtn');
+const pauseMenu = document.getElementById('pause-menu');
+const resumeBtn = document.getElementById('resumeBtn');
+const restartFromPauseBtn = document.getElementById('restartFromPauseBtn');
+const soundToggle = document.getElementById('soundToggle');
 
 // Set canvas dimensions to full screen
 canvas.width = innerWidth;
@@ -28,6 +33,126 @@ let gameLevel = 1;
 let animationId;
 let spawnInterval;
 let gameActive = false;
+
+// Audio Context
+let audioContext;
+let isSoundEnabled = true;
+let isPaused = false;
+
+// Sound effects
+const sounds = {
+  shoot: null,
+  explosion: null,
+  levelUp: null,
+  gameOver: null,
+  hit: null
+};
+
+// Initialize Audio Context and load sounds
+function initAudio() {
+  audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  
+  // Create oscillator for shooting sound
+  sounds.shoot = () => {
+    if (!isSoundEnabled || !audioContext) return;
+    
+    const osc = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+    
+    osc.connect(gain);
+    gain.connect(audioContext.destination);
+    
+    osc.frequency.setValueAtTime(880, audioContext.currentTime);
+    gain.gain.setValueAtTime(0.1, audioContext.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+    
+    osc.start();
+    osc.stop(audioContext.currentTime + 0.1);
+  };
+
+  // Create noise for explosion sound
+  sounds.explosion = () => {
+    if (!isSoundEnabled || !audioContext) return;
+    
+    const bufferSize = audioContext.sampleRate * 0.1;
+    const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
+    const data = buffer.getChannelData(0);
+    
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] = Math.random() * 2 - 1;
+    }
+    
+    const source = audioContext.createBufferSource();
+    const gain = audioContext.createGain();
+    
+    source.buffer = buffer;
+    source.connect(gain);
+    gain.connect(audioContext.destination);
+    
+    gain.gain.setValueAtTime(0.1, audioContext.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+    
+    source.start();
+  };
+
+  // Create level up sound
+  sounds.levelUp = () => {
+    if (!isSoundEnabled || !audioContext) return;
+    
+    const osc = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+    
+    osc.connect(gain);
+    gain.connect(audioContext.destination);
+    
+    osc.frequency.setValueAtTime(440, audioContext.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(880, audioContext.currentTime + 0.1);
+    
+    gain.gain.setValueAtTime(0.1, audioContext.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+    
+    osc.start();
+    osc.stop(audioContext.currentTime + 0.3);
+  };
+
+  // Create game over sound
+  sounds.gameOver = () => {
+    if (!isSoundEnabled || !audioContext) return;
+    
+    const osc = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+    
+    osc.connect(gain);
+    gain.connect(audioContext.destination);
+    
+    osc.frequency.setValueAtTime(880, audioContext.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(110, audioContext.currentTime + 0.5);
+    
+    gain.gain.setValueAtTime(0.1, audioContext.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+    
+    osc.start();
+    osc.stop(audioContext.currentTime + 0.5);
+  };
+
+  // Create hit sound
+  sounds.hit = () => {
+    if (!isSoundEnabled || !audioContext) return;
+    
+    const osc = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+    
+    osc.connect(gain);
+    gain.connect(audioContext.destination);
+    
+    osc.frequency.setValueAtTime(220, audioContext.currentTime);
+    gain.gain.setValueAtTime(0.1, audioContext.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+    
+    osc.start();
+    osc.stop(audioContext.currentTime + 0.1);
+  };
+}
 
 // Display initial high score
 highScoreEl.textContent = highScore;
@@ -187,6 +312,9 @@ class Particle {
  * Initialize/reset game state
  */
 function init() {
+  if (!audioContext) {
+    initAudio();
+  }
   player = new Player(canvas.width / 2, canvas.height / 2, 15, '#fff');
   projectiles = [];
   enemies = [];
@@ -196,6 +324,7 @@ function init() {
   scoreEl.textContent = score;
   levelEl.textContent = gameLevel;
   player.health = 100;
+  isPaused = false;
 }
 
 /**
@@ -259,8 +388,8 @@ function endGame() {
   gameActive = false;
   clearInterval(spawnInterval);
   cancelAnimationFrame(animationId);
+  sounds.gameOver();
   
-  // Update high score if current score is higher
   if (score > highScore) {
     highScore = score;
     localStorage.setItem('highScore', highScore);
@@ -275,13 +404,13 @@ function endGame() {
  * Main game animation loop
  */
 function animate() {
+  if (isPaused) return;
+  
   animationId = requestAnimationFrame(animate);
-  // Create fade effect with semi-transparent background
   ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   player.draw();
 
-  // Update and remove faded particles
   particles.forEach((particle, index) => {
     if (particle.alpha <= 0) {
       particles.splice(index, 1);
@@ -290,7 +419,6 @@ function animate() {
     }
   });
 
-  // Update and remove off-screen projectiles
   projectiles.forEach((projectile, projectileIndex) => {
     projectile.update();
 
@@ -304,23 +432,22 @@ function animate() {
     }
   });
 
-  // Handle enemy updates and collisions
   enemies.forEach((enemy, enemyIndex) => {
     enemy.update();
 
-    // Check collision with player
     const dist = Math.hypot(player.x - enemy.x, player.y - enemy.y);
     if (dist - enemy.radius - player.radius < 1) {
+      sounds.hit();
       player.takeDamage(34);
       enemies.splice(enemyIndex, 1);
     }
 
-    // Check collisions with projectiles
     projectiles.forEach((projectile, projectileIndex) => {
       const dist = Math.hypot(projectile.x - enemy.x, projectile.y - enemy.y);
       
       if (dist - enemy.radius - projectile.radius < 1) {
-        // Create explosion particles
+        sounds.explosion();
+        
         for (let i = 0; i < enemy.radius * 2; i++) {
           particles.push(
             new Particle(
@@ -336,25 +463,22 @@ function animate() {
           );
         }
 
-        // Calculate score based on enemy type
         const scoreIncrease = enemy.type === 'special' ? 
           Math.floor(enemy.radius) * 2 : 
           Math.floor(enemy.radius);
         
-        // Update score and display
         score += scoreIncrease;
         createScoreLabel(projectile, scoreIncrease);
         scoreEl.textContent = score;
         
-        // Level up system
         if (score > gameLevel * 1000) {
           gameLevel++;
           levelEl.textContent = gameLevel;
           clearInterval(spawnInterval);
           spawnEnemies();
+          sounds.levelUp();
         }
 
-        // Remove enemy and projectile after collision
         enemies.splice(enemyIndex, 1);
         projectiles.splice(projectileIndex, 1);
       }
@@ -366,21 +490,23 @@ function animate() {
 
 // Handle mouse clicks for shooting
 addEventListener('click', (event) => {
-  if (!gameActive) return;
+  if (!gameActive || isPaused) return;
   
-  // Calculate angle between player and click position
+  // Si el click fue en los botones de control, no disparar
+  if (event.target.closest('.game-controls')) return;
+
   const angle = Math.atan2(
     event.clientY - canvas.height / 2,
     event.clientX - canvas.width / 2
   );
   
-  // Create projectile velocity
   const velocity = {
     x: Math.cos(angle) * 5,
     y: Math.sin(angle) * 5
   };
   
-  // Create new projectile
+  sounds.shoot();
+  
   projectiles.push(
     new Projectile(canvas.width / 2, canvas.height / 2, 5, '#fff', velocity)
   );
@@ -403,6 +529,79 @@ restartBtn.addEventListener('click', () => {
   animate();
   spawnEnemies();
 });
+
+// Event Listeners para controles
+function togglePause() {
+  if (!gameActive) return;
+  
+  isPaused = !isPaused;
+  if (isPaused) {
+    cancelAnimationFrame(animationId);
+    clearInterval(spawnInterval);
+    pauseMenu.style.display = 'grid';
+    pauseBtn.querySelector('i').classList.remove('fa-pause');
+    pauseBtn.querySelector('i').classList.add('fa-play');
+  } else {
+    pauseMenu.style.display = 'none';
+    pauseBtn.querySelector('i').classList.remove('fa-play');
+    pauseBtn.querySelector('i').classList.add('fa-pause');
+    animate();
+    spawnEnemies();
+  }
+}
+
+function toggleSound() {
+  isSoundEnabled = !isSoundEnabled;
+  soundToggle.querySelector('i').classList.toggle('fa-volume-up');
+  soundToggle.querySelector('i').classList.toggle('fa-volume-mute');
+}
+
+pauseBtn.addEventListener('click', togglePause);
+soundToggle.addEventListener('click', toggleSound);
+resumeBtn.addEventListener('click', () => {
+  isPaused = false;
+  pauseMenu.style.display = 'none';
+  pauseBtn.querySelector('i').classList.remove('fa-play');
+  pauseBtn.querySelector('i').classList.add('fa-pause');
+  animate();
+  spawnEnemies();
+});
+
+restartFromPauseBtn.addEventListener('click', () => {
+  pauseMenu.style.display = 'none';
+  init();
+  animate();
+  spawnEnemies();
+});
+
+// Controles de teclado
+addEventListener('keydown', (event) => {
+  if ((event.key === 'Escape' || event.key.toLowerCase() === 'p') && gameActive) {
+    togglePause();
+  } else if (event.key.toLowerCase() === 'm') {
+    toggleSound();
+  }
+});
+
+// Tecla ESC para pausar
+// addEventListener('keydown', (event) => {
+//   if (event.key === 'Escape' && gameActive) {
+//     isPaused = !isPaused;
+//     if (isPaused) {
+//       cancelAnimationFrame(animationId);
+//       clearInterval(spawnInterval);
+//       pauseMenu.style.display = 'grid';
+//       pauseBtn.querySelector('i').classList.remove('fa-pause');
+//       pauseBtn.querySelector('i').classList.add('fa-play');
+//     } else {
+//       pauseMenu.style.display = 'none';
+//       pauseBtn.querySelector('i').classList.remove('fa-play');
+//       pauseBtn.querySelector('i').classList.add('fa-pause');
+//       animate();
+//       spawnEnemies();
+//     }
+//   }
+// });
 
 // Handle window resize
 addEventListener('resize', () => {
