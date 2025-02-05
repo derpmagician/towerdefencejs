@@ -7,21 +7,47 @@
   <link rel="stylesheet" href="./styles.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.10.4/gsap.min.js" defer></script>
   <script src="./script.js" defer ></script>
-  <title>Shoot Game</title>
+  <title>Tower Defence Game</title>
 </head>
 <body>
-  <div id="score">
-    <span>Score:</span><span>0</span>
+  <div class="game-ui">
+    <div id="score">
+      <span>Score: </span><span>0</span>
+    </div>
+    <div id="high-score">
+      <span>High Score: </span><span>0</span>
+    </div>
+    <div id="level">
+      <span>Level: </span><span>1</span>
+    </div>
   </div>
+  
   <div id="modal" class="modal_container">
     <div class="modal_elements">
       <h1 class="modal_title">Tower Defence</h1>
       <h2 id="bigScoreEl" class="modal_score">0</h2>
       <p class="modal_desc">Points</p>
+      <div class="modal_controls">
+        <p>How to Play:</p>
+        <ul>
+          <li>Click to shoot at enemies</li>
+          <li>Survive as long as possible</li>
+          <li>Score points for each hit</li>
+        </ul>
+      </div>
       <button id="modalBtn" class="modal_button">Start Game</button>
     </div>
   </div>
+  
   <canvas id="canvas"></canvas>
   
+  <div id="game-over" class="modal_container" style="display: none;">
+    <div class="modal_elements">
+      <h1 class="modal_title">Game Over</h1>
+      <h2 id="finalScoreEl" class="modal_score">0</h2>
+      <p class="modal_desc">Final Score</p>
+      <button id="restartBtn" class="modal_button">Play Again</button>
+    </div>
+  </div>
 </body>
 </html>
