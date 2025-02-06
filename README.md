@@ -103,6 +103,15 @@ function createShootSound() {
 - LocalStorage para guardar récords
 - Font Awesome para iconos
 
+## 📁 Estructura del Proyecto
+
+El proyecto está organizado en varios archivos JavaScript para mantener el código modular y fácil de mantener:
+
+- `index.html`: Página principal del juego
+- `script.js`: Lógica principal del juego y manejo de eventos
+- `classes.js`: Definición de las clases principales (Player, Enemy, Projectile, Particle)
+- `audio.js`: Sistema de audio y efectos de sonido
+
 ## Desarrollo
 
 Para ejecutar el juego localmente:
@@ -110,6 +119,16 @@ Para ejecutar el juego localmente:
 1. Clona este repositorio
 2. Abre `index.html` en tu navegador web
 3. ¡Empieza a jugar!
+
+## 🎯 Mecánicas del Juego
+
+1. El jugador está fijo en el centro de la pantalla
+2. Los enemigos aparecen desde los bordes de la pantalla
+3. El jugador debe disparar a los enemigos para destruirlos
+4. Cada enemigo destruido otorga puntos
+5. El juego aumenta en dificultad a medida que avanzas
+6. Los enemigos más grandes requieren más disparos para ser destruidos
+7. Las partículas crean efectos visuales al destruir enemigos
 
 ## Próximas Mejoras
 
